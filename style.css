@@ -9,10 +9,41 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border: 4px solid black;
-  padding: 2rem
+  border: 2px solid white;
+  width: 450px;
+  height: 350px;
+  text-align: center;
+
+  /* Flexbox for centering */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 
 #time {
-    font-size: 10rem;
+    font-size: 9rem;
+    font-family: 'Inter', sans-serif; /* Font: Roboto Mono */
+    font-weight: 700;  /* Bold */
+}
+
+#pause {
+    color: white;
+    font-size: 1.25rem;
+    font-family: 'Inter', sans-serif; /* Font: Roboto Mono */
+    font-weight: 700;  /* Bold */
+    background-color: black;
+    border: 2px solid white;
+    border-radius: 10px;
+    padding: 0.5rem 6rem;
+
+    /* Hover transitions */
+    transition: all 0.3s ease;
+}
+
+#pause:hover {
+    color: black;
+    background-color: white;
+    border: 2px solid black;
 }
