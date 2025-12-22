@@ -9,6 +9,8 @@ const clockScreen = document.querySelector('.clock');
 const clockStudyTime = document.getElementById('studyTime');
 let isHovering = false;
 let inputValue = 0;
+let remainingSeconds = 0;
+let countdownInterval = null;
 
 /* Hide function for real time clock */
 timeButton.addEventListener('mouseenter', function (){
@@ -20,20 +22,6 @@ timeButton.addEventListener('mouseleave', function (){
     isHovering = false;
     updateClock();
 });
-
-/* Convert minutes to time format */
-function minutesToTime(minutes) {
-    const mins = parseInt(minutes) || 0;
-    const hours = Math.floor(mins / 60);
-    const remainingMins = mins % 60;
-    return `${hours}:${String(remainingMins).padStart(2, '0')}`;
-}
-
-/* Update study time display */
-function updateStudyTime() {
-    inputValue = parseInt(inputBox.value.trim()) || 0;
-    titleStudyTime.textContent = minutesToTime(inputValue);
-}
 
 /* Update on Enter key press */
 inputBox.addEventListener('keypress', function(e) {
@@ -54,15 +42,47 @@ plus30.addEventListener('click', function() {
     titleStudyTime.textContent = minutesToTime(inputValue);
 });
 
+/* Pause/Start button on clock screen */
+pauseButton.addEventListener('click', function() {
+    if (pauseButton.textContent === "Start") {
+        startCountdown();
+        pauseButton.textContent = "Pause";
+    } else if (pauseButton.textContent === "Pause") {
+        clearInterval(countdownInterval);
+        pauseButton.textContent = "Resume";
+    } else {
+        startCountdown();
+        pauseButton.textContent = "Pause";
+    }
+});
+
 /* Start button - switch screens */
 startButton.addEventListener('click', function() {
     if (inputValue > 0) {
         inputScreen.style.display = 'none';
         clockScreen.style.display = 'flex';
         document.body.style.backgroundImage = 'none';
+        remainingSeconds = inputValue * 60;
         clockStudyTime.textContent = minutesToTime(inputValue);
     }
 });
+
+/* Convert minutes to time format */
+function minutesToTime(minutes) {
+    const mins = parseInt(minutes) || 0;
+    const hours = Math.floor(mins / 60);
+    const remainingMins = mins % 60;
+    if (hours === 0) {
+        return `0:${String(mins).padStart(2, '0')}`;
+    }
+    return `${hours}:${String(remainingMins).padStart(2, '0')}`;
+}
+
+/* Update study time display */
+function updateStudyTime() {
+    inputValue = parseInt(inputBox.value.trim()) || 0;
+    titleStudyTime.textContent = minutesToTime(inputValue);
+}
 
 /* Real time clock update */
 function updateClock() {
@@ -73,6 +93,22 @@ function updateClock() {
     if (!isHovering) {
         document.getElementById('timeButton').textContent = `${hours} : ${minutes} : ${seconds}`;
     }
+}
+
+/* Countdown timer function */
+function startCountdown() {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+    countdownInterval = setInterval(function() {
+        remainingSeconds -= 60;
+        clockStudyTime.textContent = minutesToTime(remainingSeconds / 60);
+        if (remainingSeconds <= 0) {
+            clearInterval(countdownInterval);
+            clockStudyTime.textContent = "0:00";
+            alert("Time's up!");
+        }
+    }, 60000);
 }
 
 updateClock();
