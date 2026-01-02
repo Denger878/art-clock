@@ -14,6 +14,9 @@ canvas.height = Math.min(window.innerHeight, 1080);
 const landscapeImage = new Image();
 landscapeImage.crossOrigin = "anonymous";  // Enable CORS for API images
 
+// Store location data from API
+let currentImageData = null;
+
 /* ==================== LOAD RANDOM LANDSCAPE FROM API ==================== */
 async function loadRandomLandscape() {
     try {
@@ -23,6 +26,9 @@ async function loadRandomLandscape() {
         
         if (data.success) {
             console.log('API Response:', data.data);
+            
+            // Store image data for later use
+            currentImageData = data.data;
             
             // Set image source from API
             landscapeImage.src = data.data.imageUrl;
@@ -49,15 +55,44 @@ async function loadRandomLandscape() {
 // Fallback to local image if API fails
 function fallbackToLocalImage() {
     console.log('Using fallback local image');
+    
+    // Local images with their locations
     const landscapes = [
-        'landscapes/lofoten_islands.jpg',
-        'landscapes/benagil_cave.jpg',
-        'landscapes/yellowstone.jpg',
-        'landscapes/great_wall_of_china.jpg',
-        'landscapes/ben_gioc.jpg'
+        {
+            path: 'landscapes/lofoten_islands.jpg',
+            caption: 'Lofoten Islands, Norway'
+        },
+        {
+            path: 'landscapes/benagil_cave.jpg',
+            caption: 'Benagil Cave, Portugal'
+        },
+        {
+            path: 'landscapes/yellowstone.jpg',
+            caption: 'Yellowstone, United States'
+        },
+        {
+            path: 'landscapes/great_wall_of_china.jpg',
+            caption: 'Great Wall of China, China'
+        },
+        {
+            path: 'landscapes/ben_gioc.jpg',
+            caption: 'Ban Gioc Waterfall, Vietnam'
+        }
     ];
+    
     const randomLandscape = landscapes[Math.floor(Math.random() * landscapes.length)];
-    landscapeImage.src = randomLandscape;
+    
+    // Store location data for local image
+    currentImageData = {
+        imageUrl: randomLandscape.path,
+        caption: randomLandscape.caption,
+        photographer: {
+            name: 'Unknown'
+        }
+    };
+    
+    landscapeImage.src = randomLandscape.path;
+    console.log('Local image with location:', randomLandscape.caption);
 }
 
 // Load image on page load
@@ -75,6 +110,191 @@ landscapeImage.onerror = function() {
     console.error('Failed to load image, trying fallback');
     fallbackToLocalImage();
 };
+
+/* ==================== LOCATION CAPTION ==================== */
+function showLocationCaption() {
+    // Only show if we have location data
+    if (!currentImageData || !currentImageData.caption) {
+        // If no location, show restart prompt after a delay
+        setTimeout(showRestartPrompt, 2000);
+        return;
+    }
+    
+    // Create caption element
+    const caption = document.createElement('div');
+    caption.id = 'locationCaption';
+    caption.textContent = `📍 ${currentImageData.caption}`;
+    
+    // Style the caption with frosted glass effect
+    caption.style.position = 'fixed';
+    caption.style.bottom = '40px';
+    caption.style.left = '40px';
+    caption.style.color = 'white';
+    caption.style.fontSize = '1.5rem';
+    caption.style.fontFamily = "'Inter', sans-serif";
+    caption.style.fontWeight = '600';
+    caption.style.textShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+    caption.style.padding = '15px 25px';
+    caption.style.borderRadius = '15px';
+    
+    // Frosted glass effect (same as timer)
+    caption.style.background = 'rgba(255, 255, 255, 0.1)';
+    caption.style.backdropFilter = 'blur(12px)';
+    caption.style.webkitBackdropFilter = 'blur(12px)';
+    caption.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    caption.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+    
+    caption.style.opacity = '0';
+    caption.style.transform = 'translateY(10px)';
+    caption.style.transition = 'opacity 1s ease, transform 1s ease, box-shadow 0.5s ease';
+    caption.style.zIndex = '1000';
+    
+    document.body.appendChild(caption);
+    
+    // Fade in with slide up
+    setTimeout(() => {
+        caption.style.opacity = '1';
+        caption.style.transform = 'translateY(0)';
+    }, 500);
+    
+    // Add sparkle effect after fade in
+    setTimeout(() => {
+        // Pulse the shadow to draw attention
+        caption.style.boxShadow = '0 8px 40px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.3)';
+        
+        setTimeout(() => {
+            caption.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+        }, 600);
+    }, 1500);
+    
+    // Show restart prompt after user has time to admire
+    setTimeout(showRestartPrompt, 4000);
+}
+
+/* ==================== RESTART PROMPT ==================== */
+function showRestartPrompt() {
+    // Create restart prompt
+    const prompt = document.createElement('div');
+    prompt.id = 'restartPrompt';
+    prompt.textContent = 'Press SPACE to restart';
+    
+    // Style the prompt - bottom center
+    prompt.style.position = 'fixed';
+    prompt.style.bottom = '40px';
+    prompt.style.left = '50%';
+    prompt.style.transform = 'translate(-50%, 10px)';  // Start slightly below
+    prompt.style.color = 'white';
+    prompt.style.fontSize = '1.5rem';
+    prompt.style.fontFamily = "'Inter', sans-serif";
+    prompt.style.fontWeight = '600';
+    prompt.style.textShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+    prompt.style.padding = '20px 40px';
+    prompt.style.borderRadius = '15px';
+    
+    // Frosted glass effect
+    prompt.style.background = 'rgba(255, 255, 255, 0.1)';
+    prompt.style.backdropFilter = 'blur(12px)';
+    prompt.style.webkitBackdropFilter = 'blur(12px)';
+    prompt.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    prompt.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+    
+    prompt.style.opacity = '0';
+    prompt.style.transition = 'opacity 1s ease, transform 1s ease';
+    prompt.style.zIndex = '1000';
+    
+    // Blinking animation
+    prompt.style.animation = 'blink 2s ease-in-out infinite';
+    
+    document.body.appendChild(prompt);
+    
+    // Fade in with slide up (same timing as location)
+    setTimeout(() => {
+        prompt.style.opacity = '1';
+        prompt.style.transform = 'translate(-50%, 0)';
+    }, 500);
+    
+    // Add CSS animation for blinking
+    if (!document.getElementById('blinkAnimation')) {
+        const style = document.createElement('style');
+        style.id = 'blinkAnimation';
+        style.textContent = `
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.4; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+/* ==================== RESTART FUNCTIONALITY ==================== */
+function restartTimer() {
+    // Remove location caption and restart prompt if they exist
+    const caption = document.getElementById('locationCaption');
+    const prompt = document.getElementById('restartPrompt');
+    if (caption) caption.remove();
+    if (prompt) prompt.remove();
+    
+    // Reset screen
+    clockScreen.style.display = 'none';
+    inputScreen.style.display = 'flex';
+    canvas.style.display = 'none';
+    document.body.style.backgroundImage = "url('title-screen-background.png')";
+    
+    // Reset clock screen styles
+    clockScreen.style.background = 'rgba(255, 255, 255, 0.1)';
+    clockScreen.style.backdropFilter = 'blur(12px)';
+    clockScreen.style.webkitBackdropFilter = 'blur(12px)';
+    clockScreen.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    clockScreen.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+    
+    // Reset button displays
+    timeButton.style.visibility = 'visible';  // Show time button again
+    timeButton.style.display = 'block';  // Ensure it's displayed
+    pauseButton.style.display = 'block';
+    pauseButton.textContent = 'Start';
+    pauseButton.style.opacity = '1';
+    
+    // Reset values
+    inputValue = 0;
+    remainingSeconds = 0;
+    lastStage = -1;
+    
+    // Clear input and reset display
+    inputBox.value = '';
+    titleStudyTime.textContent = '0:00';
+    
+    // Load new random landscape for next session
+    loadRandomLandscape();
+    
+    // Focus input
+    inputBox.focus();
+}
+
+// Listen for spacebar press to restart
+document.addEventListener('keydown', function(e) {
+    if (e.key === ' ' || e.key === 'Spacebar') {
+        // Only restart if we're on the finished screen (canvas visible, timer at 0)
+        if (canvas.style.display === 'block' && remainingSeconds === 0) {
+            e.preventDefault(); // Prevent page scroll
+            restartTimer();
+        }
+    }
+    
+    // Toggle fullscreen with F key
+    if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        if (!document.fullscreenElement) {
+            // Enter fullscreen
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Error entering fullscreen:', err);
+            });
+        } else {
+            // Exit fullscreen
+            document.exitFullscreen();
+        }
+    }
+});
 
 /* ==================== CONSTANTS ==================== */
 const timeButton = document.getElementById('timeButton');
@@ -170,7 +390,7 @@ timeButton.addEventListener('mouseleave', function (){
 });
 
 timeButton.addEventListener('click', function(){
-    timeButton.style.display = 'none';
+    timeButton.style.visibility = 'hidden';  // Hide but keep space
 })
 
 /* Pause/Start button */
@@ -262,14 +482,9 @@ function startCountdown() {
             lastStage = newStage;
             const blockSize = calculateBlockSize();
             
-            // Subtle desaturation only in final 60 seconds
-            let saturation = 1.0;
-            if (remainingSeconds <= 60) {
-                saturation = 0.5 + (remainingSeconds / 60 * 0.5);
-            }
-            
-            drawPixelated(blockSize, saturation);
-            console.log(`Stage ${newStage}: ${blockSize}px blocks, saturation: ${saturation.toFixed(2)}`);
+            // Draw pixelated version (full saturation throughout)
+            drawPixelated(blockSize);
+            console.log(`Stage ${newStage}: ${blockSize}px blocks`);
         }
         
     }, 1000);
@@ -383,7 +598,7 @@ function colorBlastReveal() {
     const blockSize = 8;
     for (let y = 0; y < canvas.height; y += blockSize) {
       for (let x = 0; x < canvas.width; x += blockSize) {
-        const color = getAverageColor(x, y, blockSize, blockSize, 0.5);
+        const color = getAverageColor(x, y, blockSize, blockSize);
         ctx.fillStyle = color;
         ctx.fillRect(x, y, blockSize, blockSize);
       }
@@ -416,8 +631,12 @@ function colorBlastReveal() {
     if (blastProgress < 1) {
       requestAnimationFrame(animateBlast);
     } else {
+      // Animation complete - draw final image and show location
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(landscapeImage, 0, 0, canvas.width, canvas.height);
+      
+      // Show location caption after animation completes
+      showLocationCaption();
     }
   }
   
@@ -450,11 +669,7 @@ window.addEventListener('resize', function() {
       // Redraw current state
       if (remainingSeconds > 0) {
         const blockSize = calculateBlockSize();
-        let saturation = 1.0;
-        if (remainingSeconds <= 60) {
-          saturation = 0.5 + (remainingSeconds / 60 * 0.5);
-        }
-        drawPixelated(blockSize, saturation);
+        drawPixelated(blockSize);
       }
     }
   }
