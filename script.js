@@ -5,7 +5,8 @@
 (function() {
   'use strict';
 
-  /* -------------------- CONFIGUIRATION -------------------- */
+  /* Configuration
+     ======================================================================== */
 
   const CONFIG = {
     API_URL: 'http://localhost:5001/api/random',
@@ -26,7 +27,8 @@
     { path: 'landscapes/ben_gioc.jpg', caption: 'Ban Gioc Waterfall, Vietnam' }
   ];
 
-  /* -------------------- DOM ELEMENTS -------------------- */
+  /* DOM Elements
+     ======================================================================== */
 
   const elements = {
     canvas: document.getElementById('landscapesCanvas'),
@@ -44,7 +46,8 @@
   const ctx = elements.canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
 
-  /* -------------------- APPLICATION STATE -------------------- */
+  /* Application State
+     ======================================================================== */
 
   const state = {
     inputValue: 0,
@@ -59,13 +62,25 @@
   const landscapeImage = new Image();
   landscapeImage.crossOrigin = 'anonymous';
 
-  /* -------------------- UTILITY FUNCTIONS -------------------- */
+  /* Utility Functions
+     ======================================================================== */
 
   function secondsToTime(seconds) {
     const total = parseInt(seconds) || 0;
     const secs = total % 60;
     const mins = Math.floor(total / 60) % 60;
     const hours = Math.floor(total / 3600);
+
+    if (hours === 0) {
+      return `${mins}:${String(secs).padStart(2, '0')}`;
+    }
+    return `${hours}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  function minutesToDisplay(minutes) {
+    const total = parseInt(minutes) || 0;
+    const hours = Math.floor(total / 60);
+    const mins = total % 60;
 
     if (hours === 0) {
       return `0:${String(mins).padStart(2, '0')}`;
@@ -83,7 +98,8 @@
     elements.timeButton.textContent = `${hours} : ${minutes} : ${seconds}`;
   }
 
-  /* -------------------- CANVAS -------------------- */
+  /* Canvas & Pixel Functions
+     ======================================================================== */
 
   function initializeCanvas() {
     elements.canvas.width = Math.min(window.innerWidth, CONFIG.CANVAS_MAX_WIDTH);
@@ -146,7 +162,8 @@
     return Math.round(blockSize);
   }
 
-  /* -------------------- IMAGE LOADING -------------------- */
+  /* Image Loading
+     ======================================================================== */
 
   async function loadRandomLandscape() {
     try {
@@ -183,11 +200,12 @@
     drawPixelated(200);
   }
 
-  /* -------------------- TIMER FUNCTIONS -------------------- */
+  /* Timer Functions
+     ======================================================================== */
 
   function updateStudyTime() {
     state.inputValue = parseInt(elements.inputBox.value.trim()) || 0;
-    elements.titleStudyTime.textContent = secondsToTime(state.inputValue * 60);
+    elements.titleStudyTime.textContent = minutesToDisplay(state.inputValue);
   }
 
   function startTimer() {
@@ -208,16 +226,8 @@
       clearInterval(state.countdownInterval);
     }
 
-    let lastUpdateTime = Date.now();
-
     state.countdownInterval = setInterval(function() {
-      const now = Date.now();
-      const deltaTime = now - lastUpdateTime;
-      lastUpdateTime = now;
-
-      if (deltaTime >= 900) {
-        state.remainingSeconds--;
-      }
+      state.remainingSeconds--;
 
       if (state.remainingSeconds <= 0) {
         clearInterval(state.countdownInterval);
@@ -225,8 +235,6 @@
         elements.timeButton.style.display = 'none';
         elements.pauseButton.style.display = 'none';
         colorBlastReveal();
-      } else if (state.remainingSeconds <= 60) {
-        elements.clockStudyTime.textContent = state.remainingSeconds;
       } else {
         elements.clockStudyTime.textContent = secondsToTime(state.remainingSeconds);
       }
@@ -239,7 +247,8 @@
     }, 1000);
   }
 
-  /* -------------------- REVEAL ANIMATION -------------------- */
+  /* Reveal Animation
+     ======================================================================== */
 
   function colorBlastReveal() {
     elements.clockScreen.style.background = 'transparent';
@@ -299,7 +308,8 @@
     requestAnimationFrame(animateBlast);
   }
 
-  /* -------------------- UI OVERLAYS -------------------- */
+  /* UI Overlays
+     ======================================================================== */
 
   function showLocationCaption() {
     if (!state.currentImageData || !state.currentImageData.caption) {
@@ -401,7 +411,8 @@
     }
   }
 
-  /* -------------------- RESTART -------------------- */
+  /* Restart
+     ======================================================================== */
 
   function restartTimer() {
     const caption = document.getElementById('locationCaption');
@@ -439,7 +450,8 @@
     elements.inputBox.focus();
   }
 
-  /* -------------------- EVENT LISTENERS -------------------- */
+  /* Event Listeners
+     ======================================================================== */
 
   function initializeEventListeners() {
     elements.inputBox.addEventListener('keypress', function(e) {
@@ -461,7 +473,7 @@
 
     elements.plus30.addEventListener('click', function() {
       state.inputValue += 30;
-      elements.titleStudyTime.textContent = secondsToTime(state.inputValue * 60);
+      elements.titleStudyTime.textContent = minutesToDisplay(state.inputValue);
     });
 
     elements.startButton.addEventListener('click', startTimer);
@@ -547,7 +559,8 @@
     landscapeImage.onerror = fallbackToLocalImage;
   }
 
-  /* -------------------- INITIALIZATION -------------------- */
+  /* Initialization
+     ======================================================================== */
 
   function init() {
     initializeCanvas();
